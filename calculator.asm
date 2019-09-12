@@ -5,16 +5,17 @@ segment readable executable
 itoa:
     mov ax, [number]
     mov [number_str], ax
-    jmp negres
-    negreschange:
+    cmp [number_str], 0
+    jl neg_num_change
+    jmp continue_itoa1
+    neg_num_change:
         mov ax, [number_str]
         neg ax
         mov [number_str], ax
-    negres:
-       cmp [number_str], 0
-       js negreschange
-    jmp loop1
-    loop1end:
+    continue_itoa1:
+
+    jmp loop_push_symbols
+    loop_push_symbols_end:
         xor eax, eax
         xor ebx, ebx
         xor edx, edx
@@ -25,12 +26,14 @@ itoa:
         push dx
         inc [len]
         mov [number_str], ax
-    loop1:
+    loop_push_symbols:
         cmp ax, 0
-        jnz loop1end
+        jg loop_push_symbols_end
 
-    jmp negnum
-    negnumend:
+    cmp [number], 0
+    jl print_minus
+    jmp continue_itoa2
+    print_minus:
         mov ax, [number]
         neg ax
         mov [number], ax
@@ -40,13 +43,16 @@ itoa:
 	    mov	ecx,symbol
 	    mov	edx,1
         int	0x80
-    negnum:
-        cmp [number], 0
-        js negnumend
+    continue_itoa2:
 
-    forloopstart:
+    loop_pop_symbols_start:
         mov [n], 0
-    forloop:
+        cmp [len], 0
+        jne loop_pop_symbols
+        mov dx, 0
+        push dx
+        inc [len]
+    loop_pop_symbols:
         xor eax, eax
         xor ebx, ebx
         xor edx, edx
@@ -65,7 +71,7 @@ itoa:
         xor eax, eax
         mov al, [n]
         cmp [len], al
-        jnz forloop
+        jl loop_pop_symbols
         ret
 
 atoi:
@@ -137,6 +143,10 @@ start:
 
 
     call read_op
+    xor eax, eax
+    xor ebx, ebx
+    xor edx, edx
+    xor ecx, ecx
     jmp math
 
     op_add:
