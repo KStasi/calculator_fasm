@@ -125,7 +125,7 @@ read_op:
     mov eax, 3
     mov ebx, 0
     mov ecx, input_str
-    mov edx, 0x100
+    mov edx, 0x1
     int 0x80
     ret
 
@@ -136,51 +136,49 @@ start:
     call atoi
     mov [number1], ax
     mov [input_str], 0x100
+
     call read_number
     mov esi, input_str
     call atoi
     mov [number2], ax
 
-
     call read_op
+
     xor eax, eax
     xor ebx, ebx
     xor edx, edx
     xor ecx, ecx
+
     jmp math
 
     op_add:
         mov ax, [number1]
         add ax, [number2]
-        jmp contin
+        jmp start_continue1
     op_sub:
         mov ax, [number1]
         sub ax, [number2]
-        jmp contin
+        jmp start_continue1
     op_div:
-        xor eax, eax
-        xor ebx, ebx
-        xor edx, edx
-        xor ecx, ecx
-        movsx eax, [number1]
-        jmp cond
-        negch:
+        mov ax, [number1]
+        cmp ax, 0
+        js change_sign1
+        jmp start_continue2
+        change_sign1:
             neg ax
-        cond:
-            cmp ax, 0
-            js negch
+        start_continue2:
         mov bx, [number2]
         idiv bx
         cmp [number1], 0
-        js negch2
-        jmp contin
-        negch2:
+        js change_sign2
+        jmp start_continue1
+        change_sign2:
             neg ax
-        jmp contin
+        jmp start_continue1
     op_mul:
         mov ax, [number1]
         imul ax, [number2]
-        jmp contin
+        jmp start_continue1
 
     math:
         cmp byte[input_str], '+'
@@ -192,7 +190,7 @@ start:
         cmp byte[input_str], '*'
         je op_mul
 
-    contin:
+    start_continue1:
         mov [number], ax
         call itoa
 
