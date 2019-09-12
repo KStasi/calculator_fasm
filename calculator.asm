@@ -80,24 +80,24 @@ atoi:
     xor ebx, ebx
     xor ecx, ecx
     cmp byte [esi], '-'
-    jnz negskip
+    jnz get_decimal
     inc esi
-    negskip:
+    get_decimal:
         lodsb
         cmp al, 10
-        je done
+        je atoi_continue1
         sub al, 48
         imul bx, 10
         add ebx, eax
         xor eax, eax
-        jmp short negskip
-    done:
+        jmp short get_decimal
+    atoi_continue1:
         xchg ebx,eax
         pop esi
         cmp byte [esi] , '-'
-        jz negate
+        jz switch_sign
         ret
-    negate:
+    switch_sign:
         neg eax
     ret
 
