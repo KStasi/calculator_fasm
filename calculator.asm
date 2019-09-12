@@ -201,7 +201,7 @@ number dw 0
 number1 dw 0
 number2 dw 0
 number_str dw 0
-input_promppt db 'enter number: '
+input_prompt db 'enter number: '
 input_len = $-input_prompt
 input_op_prompt db 'enter op: '
 input_op_prompt_len = $-input_op_prompt
