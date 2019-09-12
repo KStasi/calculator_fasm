@@ -71,7 +71,7 @@ itoa:
         xor eax, eax
         mov al, [n]
         cmp [len], al
-        jl loop_pop_symbols
+        jg loop_pop_symbols
         ret
 
 atoi:
