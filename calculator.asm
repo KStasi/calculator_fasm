@@ -179,21 +179,6 @@ macro print_num element {
     popa
 }
 
-read_op:
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, input_op_prompt
-    mov edx, input_op_prompt_len
-    int 0x80
-
-    mov eax, 3
-    mov ebx, 0
-    mov ecx, input_str
-    mov edx, 0x1
-    int 0x80
-    ret
-
-
 start:
     str_len input_prompt, len ; get string length
     put_str input_prompt, [len] ; print string
