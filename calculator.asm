@@ -180,6 +180,11 @@ macro print_num element {
 }
 
 start:
+    xor eax, eax
+    xor ebx, ebx
+    xor edx, edx
+    xor ecx, ecx
+
     str_len input_prompt, len ; get string length
     put_str input_prompt, [len] ; print string
 
@@ -201,20 +206,26 @@ start:
     zero_str input_str, 6 ; clean string
     read_str input_str, 7 ; read element
 
-    xor eax, eax
-    xor ebx, ebx
-    xor edx, edx
-    xor ecx, ecx
-
-    jmp math
-
+    cmp byte[input_str], '+'
+    je op_add
+    cmp byte[input_str], '-'
+    je op_sub
+    cmp byte[input_str], '/'
+    je op_div
+    cmp byte[input_str], '*'
+    je op_mul
+    str_len op_err_str, len ; get string length
+    put_str op_err_str, [len] ; print string
+    exit 1 ; reserved for error        
     op_add:
         mov ax, [number1]
         add ax, [number2]
+        jo ret_error ; if OF = 1 throw error
         jmp start_continue1
     op_sub:
         mov ax, [number1]
         sub ax, [number2]
+        jo ret_error ; if OF = 1 throw error
         jmp start_continue1
     op_div:
         mov ax, [number1]
@@ -226,6 +237,7 @@ start:
         start_continue2:
         mov bx, [number2]
         idiv bx
+        jo ret_error ; if OF = 1 throw error
         cmp [number1], 0
         js change_sign2
         jmp start_continue1
@@ -235,17 +247,12 @@ start:
     op_mul:
         mov ax, [number1]
         imul ax, [number2]
+        jo ret_error ; if OF = 1 throw error
         jmp start_continue1
-
-    math:
-        cmp byte[input_str], '+'
-        je op_add
-        cmp byte[input_str], '-'
-        je op_sub
-        cmp byte[input_str], '/'
-        je op_div
-        cmp byte[input_str], '*'
-        je op_mul
+    ret_error: 
+        str_len overflow_str, len ; get string length
+        put_str overflow_str, [len] ; print string
+        exit 1 ; reserved for error        
 
     start_continue1:
         mov [number], ax
@@ -265,7 +272,7 @@ number_str dw 0
 input_prompt db 'enter number: ', 0x0a, 0x00
 input_len = $-input_prompt
 input_op_prompt db 'enter op: ', 0x0a, 0x00
-input_op_prompt_len = $-input_op_prompt
+op_err_str db 'operation not permited ', 0x0a, 0x00
 input_str dw 0x100
 overflow_str db "Number overflow.", 0x0a, 0x00
 element_str rb 6
